@@ -1,0 +1,4 @@
+name: Superhotplugin
+version: ${project.version}
+main: net.kunmc.lab.superhotplugin.SuperHotPlugin
+api-version: 1.15
