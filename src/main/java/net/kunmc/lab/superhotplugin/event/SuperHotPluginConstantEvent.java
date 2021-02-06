@@ -20,7 +20,7 @@ public class SuperHotPluginConstantEvent extends BukkitRunnable {
 		Player kun = plugin.getServer().getPlayer("Shojo_Virgim");
 		if (kun != null) {
 			World world = kun.getWorld();
-			if (SuperHotPluginHelper.clockHolder == null) {
+			if (SuperHotPluginHelper.clockHolder == null && SuperHotPlugin.config.getBoolean("superHotEnabled")) {
 				if (SuperHotPluginHelper.isKunMoving(kun) && world != null) {
 					if (kun.isSprinting() && kunMovementState != KunMovementState.Running) {
 						world.getEntities().stream()

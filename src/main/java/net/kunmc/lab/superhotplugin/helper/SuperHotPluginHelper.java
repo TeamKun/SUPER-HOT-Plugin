@@ -1,5 +1,6 @@
 package net.kunmc.lab.superhotplugin.helper;
 
+import net.kunmc.lab.superhotplugin.SuperHotPlugin;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.*;
@@ -152,7 +153,7 @@ public class SuperHotPluginHelper {
 	}
 
 	public static boolean isKun(Entity entity) {
-		return entity.getName().equalsIgnoreCase("Shojo_Virgim");
+		return entity.getName().equalsIgnoreCase(SuperHotPlugin.config.getString("timeFreezer"));
 	}
 
 	public static boolean isKunMoving(Player kun) {
