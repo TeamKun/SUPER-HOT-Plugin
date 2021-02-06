@@ -67,10 +67,8 @@ public class SuperHotPluginHelper {
 			if (projectile instanceof Fireball) {
 				if (projectile instanceof Fireball) {
 					Fireball fireball = (Fireball) projectile;
-					try {
+					if (fireballDirection.containsKey(fireball.getUniqueId())) {
 						fireball.setVelocity(fireballDirection.get(fireball.getUniqueId()).multiply(1.5D));
-					} catch (IllegalArgumentException e) {
-						System.out.println(e.toString());
 					}
 				}
 			}
@@ -97,10 +95,8 @@ public class SuperHotPluginHelper {
 			if (projectile instanceof Fireball) {
 				if (projectile instanceof Fireball) {
 					Fireball fireball = (Fireball) projectile;
-					try {
+					if (fireballDirection.containsKey(fireball.getUniqueId())) {
 						fireball.setVelocity(fireballDirection.get(fireball.getUniqueId()).multiply(0.5D));
-					} catch (IllegalArgumentException e) {
-						System.out.println(e.toString());
 					}
 				}
 			}
@@ -129,10 +125,8 @@ public class SuperHotPluginHelper {
 			if (projectile instanceof Fireball) {
 				if (projectile instanceof Fireball) {
 					Fireball fireball = (Fireball) projectile;
-					try {
+					if (fireballDirection.containsKey(fireball.getUniqueId())) {
 						fireball.setVelocity(fireballDirection.get(fireball.getUniqueId()));
-					} catch (IllegalArgumentException e) {
-						System.out.println(e.toString());
 					}
 				}
 			}
