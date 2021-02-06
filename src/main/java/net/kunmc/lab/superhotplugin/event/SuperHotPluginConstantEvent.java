@@ -48,7 +48,10 @@ public class SuperHotPluginConstantEvent extends BukkitRunnable {
 					kunMovementState = KunMovementState.Stopping;
 					kun.sendMessage("時間の流れが止まった！");
 				}
+
+				
 			}
+			if (!SuperHotPlugin.config.getBoolean("superHotEnabled")) kunMovementState = KunMovementState.Disable;
 			if (kunMovementState == KunMovementState.Stopping || (SuperHotPluginHelper.clockHolder != null)) {
 				world.getEntities().stream()
 					.forEach(e -> {
@@ -64,6 +67,7 @@ public class SuperHotPluginConstantEvent extends BukkitRunnable {
 		Running,
 		Sneaking,
 		Walking,
-		Stopping
+		Stopping,
+		Disable
 	}
 }

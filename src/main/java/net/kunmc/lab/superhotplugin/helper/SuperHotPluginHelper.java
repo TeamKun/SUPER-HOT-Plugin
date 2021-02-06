@@ -153,6 +153,7 @@ public class SuperHotPluginHelper {
 	}
 
 	public static boolean isKun(Entity entity) {
+		if (!SuperHotPlugin.config.getBoolean("superHotEnabled")) return false;
 		return entity.getName().equalsIgnoreCase(SuperHotPlugin.config.getString("timeFreezer"));
 	}
 
