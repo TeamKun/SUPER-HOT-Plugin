@@ -1,6 +1,8 @@
 package net.kunmc.lab.superhotplugin.helper;
 
 import net.kunmc.lab.superhotplugin.SuperHotPlugin;
+import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.*;
@@ -144,12 +146,16 @@ public class SuperHotPluginHelper {
 			counter = fireballCounter.get(uuid) + 1;
 		}
 		fireballCounter.put(uuid, counter);
-		System.out.println(fireballCounter.values());
 		if (fireballCounter.get(uuid) % 2 == 0) {
 			fireball.setVelocity(new Vector(1, 0, 0));
 		} else {
 			fireball.setVelocity(new Vector(-1, 0, 0));
 		}
+	}
+
+	public static void destroyBullet(Fireball fireball, Player player) {
+		fireball.remove();
+		player.spawnParticle(Particle.BLOCK_CRACK, fireball.getLocation().getX(), fireball.getLocation().getY(), fireball.getLocation().getZ(), 20, Material.BLACK_CONCRETE.createBlockData());
 	}
 
 	public static boolean isKun(Entity entity) {

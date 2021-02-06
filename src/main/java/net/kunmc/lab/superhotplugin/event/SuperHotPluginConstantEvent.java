@@ -27,39 +27,47 @@ public class SuperHotPluginConstantEvent extends BukkitRunnable {
 							.filter(e -> !SuperHotPluginHelper.isKun(e))
 							.forEach(SuperHotPluginHelper::accelerate);
 						kunMovementState = KunMovementState.Running;
-						kun.sendMessage("時間の流れが加速した！");
+						//kun.sendMessage("時間の流れが加速した！");
 					} else if (kun.isSneaking() && kunMovementState != KunMovementState.Sneaking) {
 						world.getEntities().stream()
 							.filter(e -> !SuperHotPluginHelper.isKun(e))
 							.forEach(SuperHotPluginHelper::decelerate);
 						kunMovementState = KunMovementState.Sneaking;
-						kun.sendMessage("時間の流れが減速した！");
+						//kun.sendMessage("時間の流れが減速した！");
 					} else if (!kun.isSprinting() && !kun.isSneaking() && kunMovementState != KunMovementState.Walking) {
 						world.getEntities().stream()
 							.filter(e -> !SuperHotPluginHelper.isKun(e))
 							.forEach(SuperHotPluginHelper::release);
 						kunMovementState = KunMovementState.Walking;
-						kun.sendMessage("時間の流れが元通りになった！");
+						//kun.sendMessage("時間の流れが元通りになった！");
 					}
 				} else if (!SuperHotPluginHelper.isKunMoving(kun) && kunMovementState != KunMovementState.Stopping) {
 					world.getEntities().stream()
 						.filter(e -> !SuperHotPluginHelper.isKun(e))
 						.forEach(SuperHotPluginHelper::freeze);
 					kunMovementState = KunMovementState.Stopping;
-					kun.sendMessage("時間の流れが止まった！");
+					//kun.sendMessage("時間の流れが止まった！");
 				}
 
-				
+
 			}
-			if (!SuperHotPlugin.config.getBoolean("superHotEnabled")) kunMovementState = KunMovementState.Disable;
-			if (kunMovementState == KunMovementState.Stopping || (SuperHotPluginHelper.clockHolder != null)) {
-				world.getEntities().stream()
-					.forEach(e -> {
-						if (e instanceof Fireball) {
-							SuperHotPluginHelper.freezeFireBall((Fireball) e);
+			if (!SuperHotPlugin.config.getBoolean("superHotEnabled"))
+				kunMovementState = KunMovementState.Disable;
+			world.getEntities().stream()
+				.forEach(e -> {
+					if (e instanceof Fireball) {
+						Fireball f0 = (Fireball) e;
+						if (kunMovementState == KunMovementState.Stopping || (SuperHotPluginHelper.clockHolder != null)) {
+							SuperHotPluginHelper.freezeFireBall(f0);
 						}
-					});
-			}
+						Fireball f1 = f0.getLocation().getNearbyEntitiesByType(Fireball.class, 1).stream()
+							.findFirst().orElse(null);
+						if (f1 != null && !f0.getUniqueId().toString().equalsIgnoreCase(f1.getUniqueId().toString())) {
+							SuperHotPluginHelper.destroyBullet(f0, kun);
+							SuperHotPluginHelper.destroyBullet(f1, kun);
+						}
+					}
+				});
 		}
 	}
 
