@@ -117,10 +117,8 @@ public class SuperHotPluginHelper {
 			}
 		} else if (entity instanceof Projectile) {
 			Projectile projectile = (Projectile) entity;
-			try {
+			if (projectileVelocity.containsKey(projectile.getUniqueId())) {
 				projectile.setVelocity(projectileVelocity.get(projectile.getUniqueId()));
-			} catch (IllegalArgumentException e) {
-				System.out.println(e.toString());
 			}
 			if (projectile instanceof Fireball) {
 				if (projectile instanceof Fireball) {

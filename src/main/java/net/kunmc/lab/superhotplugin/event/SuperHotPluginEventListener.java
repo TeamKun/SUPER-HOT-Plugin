@@ -3,17 +3,23 @@ package net.kunmc.lab.superhotplugin.event;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import net.kunmc.lab.superhotplugin.SuperHotPlugin;
 import net.kunmc.lab.superhotplugin.helper.SuperHotPluginHelper;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 public class SuperHotPluginEventListener implements Listener {
 	private final SuperHotPlugin plugin;
@@ -62,6 +68,27 @@ public class SuperHotPluginEventListener implements Listener {
 			} else if (itemstack.getType().equals(Material.TRIPWIRE_HOOK)) {
 				Fireball bullet = player.launchProjectile(Fireball.class);
 				bullet.setDirection(player.getLocation().getDirection());
+			} else if (itemstack.getType().equals(Material.IRON_HOE)) {
+				if (SuperHotPluginHelper.isKun(player)) {
+					List<Block> sightBlocks = player.getLineOfSight(null, 32);
+					sightBlocks.stream().
+						forEach(b -> {
+							Player target = b.getLocation().getNearbyEntitiesByType(Player.class, 0.5).stream()
+								.findFirst().orElse(null);
+							if (target != null) {
+								Location kunLoc = player.getLocation();
+								Inventory kunInv = player.getInventory();
+								Location targetLoc = target.getLocation();
+								Inventory targetInv = target.getInventory();
+								player.teleport(targetLoc);
+								player.getInventory().setContents(targetInv.getContents());
+								player.updateInventory();
+								target.teleport(kunLoc);
+								target.getInventory().setContents(kunInv.getContents());
+								target.updateInventory();
+							}
+						});
+				}
 			}
 		}
 	}
