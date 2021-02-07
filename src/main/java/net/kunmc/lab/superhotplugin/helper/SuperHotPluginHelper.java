@@ -1,14 +1,20 @@
 package net.kunmc.lab.superhotplugin.helper;
 
 import net.kunmc.lab.superhotplugin.SuperHotPlugin;
+import net.kunmc.lab.superhotplugin.event.SuperHotPluginConstantEvent;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -16,13 +22,11 @@ public class SuperHotPluginHelper {
 	private static double lastKunXPos = 0;
 	private static double lastKunZPos = 0;
 	private static Map<UUID, Vector> projectileVelocity = new HashMap<>();
-	private static Map<UUID, Vector> fireballDirection = new HashMap<>();
 	private static UUID ACCELERATION_ID = UUID.randomUUID();
 	private static UUID DECELERATION_ID = UUID.randomUUID();
 	private static AttributeModifier ACCELERATION = new AttributeModifier(ACCELERATION_ID, "Accelerate entity", 0.5D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
 	private static AttributeModifier DECELERATION = new AttributeModifier(DECELERATION_ID, "Decelerate entity", -0.5D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
 	public static String clockHolder;
-	private static Map<UUID, Integer> fireballCounter = new HashMap<>();
 
 	public static void freeze(Entity entity) {
 		entity.setGravity(false);
@@ -40,10 +44,10 @@ public class SuperHotPluginHelper {
 			Projectile projectile = (Projectile) entity;
 			projectileVelocity.put(projectile.getUniqueId(), projectile.getVelocity());
 			projectile.setVelocity(new Vector().zero());
-			if (projectile instanceof Fireball) {
-				Fireball fireball = (Fireball) projectile;
-				fireballDirection.put(fireball.getUniqueId(), fireball.getDirection());
-			}
+		} else if (entity instanceof Item) {
+			Item item = (Item) entity;
+			projectileVelocity.put((item.getUniqueId()), item.getVelocity());
+			item.setVelocity(new Vector().zero());
 		}
 	}
 
@@ -63,14 +67,13 @@ public class SuperHotPluginHelper {
 			}
 		} else if (entity instanceof Projectile) {
 			Projectile projectile = (Projectile) entity;
-			projectile.setVelocity(projectile.getVelocity().multiply(1.5D));
-			if (projectile instanceof Fireball) {
-				if (projectile instanceof Fireball) {
-					Fireball fireball = (Fireball) projectile;
-					if (fireballDirection.containsKey(fireball.getUniqueId())) {
-						fireball.setVelocity(fireballDirection.get(fireball.getUniqueId()).multiply(1.5D));
-					}
-				}
+			if (projectileVelocity.containsKey(projectile.getUniqueId())) {
+				projectile.setVelocity(projectileVelocity.get(projectile.getUniqueId()).multiply(1.5));
+			}
+		} else if (entity instanceof Item) {
+			Item item = (Item) entity;
+			if (projectileVelocity.containsKey(item.getUniqueId())) {
+				item.setVelocity(projectileVelocity.get(item.getUniqueId()).multiply(1.5));
 			}
 		}
 	}
@@ -91,14 +94,13 @@ public class SuperHotPluginHelper {
 			}
 		} else if (entity instanceof Projectile) {
 			Projectile projectile = (Projectile) entity;
-			projectile.setVelocity(projectile.getVelocity().multiply(0.5D));
-			if (projectile instanceof Fireball) {
-				if (projectile instanceof Fireball) {
-					Fireball fireball = (Fireball) projectile;
-					if (fireballDirection.containsKey(fireball.getUniqueId())) {
-						fireball.setVelocity(fireballDirection.get(fireball.getUniqueId()).multiply(0.5D));
-					}
-				}
+			if (projectileVelocity.containsKey(projectile.getUniqueId())) {
+				projectile.setVelocity(projectileVelocity.get(projectile.getUniqueId()).multiply(0.5));
+			}
+		} else if (entity instanceof Item) {
+			Item item = (Item) entity;
+			if (projectileVelocity.containsKey(item.getUniqueId())) {
+				item.setVelocity(projectileVelocity.get(item.getUniqueId()).multiply(0.5));
 			}
 		}
 	}
@@ -120,34 +122,50 @@ public class SuperHotPluginHelper {
 			if (projectileVelocity.containsKey(projectile.getUniqueId())) {
 				projectile.setVelocity(projectileVelocity.get(projectile.getUniqueId()));
 			}
-			if (projectile instanceof Fireball) {
-				if (projectile instanceof Fireball) {
-					Fireball fireball = (Fireball) projectile;
-					if (fireballDirection.containsKey(fireball.getUniqueId())) {
-						fireball.setVelocity(fireballDirection.get(fireball.getUniqueId()));
-					}
-				}
+		} else if (entity instanceof Item) {
+			Item item = (Item) entity;
+			if (projectileVelocity.containsKey(item.getUniqueId())) {
+				item.setVelocity(projectileVelocity.get(item.getUniqueId()));
 			}
 		}
 	}
 
-	public static void freezeFireBall(Fireball fireball) {
-		UUID uuid = fireball.getUniqueId();
-		int counter = 0;
-		if (fireballCounter.containsKey(fireball.getUniqueId())) {
-			counter = fireballCounter.get(uuid) + 1;
-		}
-		fireballCounter.put(uuid, counter);
-		if (fireballCounter.get(uuid) % 2 == 0) {
-			fireball.setVelocity(new Vector(1, 0, 0));
-		} else {
-			fireball.setVelocity(new Vector(-1, 0, 0));
-		}
+	public static void destroyBullet(Snowball snowball, Player player) {
+		snowball.remove();
+		player.spawnParticle(Particle.BLOCK_CRACK, snowball.getLocation().getX(), snowball.getLocation().getY(), snowball.getLocation().getZ(), 20, Material.BLACK_CONCRETE.createBlockData());
 	}
 
-	public static void destroyBullet(Fireball fireball, Player player) {
-		fireball.remove();
-		player.spawnParticle(Particle.BLOCK_CRACK, fireball.getLocation().getX(), fireball.getLocation().getY(), fireball.getLocation().getZ(), 20, Material.BLACK_CONCRETE.createBlockData());
+	public static void switchBody(Player player) {
+		List<Block> sightBlocks = player.getLineOfSight(null, 32);
+		sightBlocks.stream().
+			forEach(b -> {
+				Player target = b.getLocation().getNearbyEntitiesByType(Player.class, 0.5).stream()
+					.findFirst().orElse(null);
+				if (target != null) {
+					Location kunLoc = player.getLocation();
+					Inventory kunInv = player.getInventory();
+					Location targetLoc = target.getLocation();
+					Inventory targetInv = target.getInventory();
+					player.teleport(targetLoc);
+					player.getInventory().setContents(targetInv.getContents());
+					player.updateInventory();
+					target.teleport(kunLoc);
+					target.getInventory().setContents(kunInv.getContents());
+					target.updateInventory();
+				}
+			});
+	}
+
+	public static void throwItem(Player player) {
+		ItemStack item = player.getInventory().getItemInMainHand();
+		Item itemThrow = player.getWorld().dropItem(new Location(player.getWorld(), player.getLocation().getX(), player.getLocation().getY() + 1, player.getLocation().getZ()), item);
+		itemThrow.setVelocity(player.getEyeLocation().getDirection());
+		itemThrow.setCustomName("throw");
+		itemThrow.setCustomNameVisible(false);
+		player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+		if (SuperHotPluginConstantEvent.kunMovementState == SuperHotPluginConstantEvent.KunMovementState.Stopping || SuperHotPluginHelper.clockHolder != null) {
+			SuperHotPluginHelper.freeze(itemThrow);
+		}
 	}
 
 	public static boolean isKun(Entity entity) {

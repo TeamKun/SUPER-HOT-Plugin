@@ -3,23 +3,18 @@ package net.kunmc.lab.superhotplugin.event;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import net.kunmc.lab.superhotplugin.SuperHotPlugin;
 import net.kunmc.lab.superhotplugin.helper.SuperHotPluginHelper;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
+import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.List;
 
 public class SuperHotPluginEventListener implements Listener {
 	private final SuperHotPlugin plugin;
@@ -39,7 +34,7 @@ public class SuperHotPluginEventListener implements Listener {
 
 	@EventHandler
 	public void onPlayerShoot(PlayerLaunchProjectileEvent event) {
-		if (SuperHotPluginConstantEvent.kunMovementState == SuperHotPluginConstantEvent.KunMovementState.Stopping) {
+		if (SuperHotPluginConstantEvent.kunMovementState == SuperHotPluginConstantEvent.KunMovementState.Stopping || SuperHotPluginHelper.clockHolder != null) {
 			SuperHotPluginHelper.freeze(event.getProjectile());
 		}
 	}
@@ -50,6 +45,15 @@ public class SuperHotPluginEventListener implements Listener {
 		final ItemStack itemstack = event.getItem();
 		final Action action = event.getAction();
 		if (itemstack == null) return;
+		if (SuperHotPluginConstantEvent.kunMovementState == SuperHotPluginConstantEvent.KunMovementState.Stopping) {
+			if (!SuperHotPluginHelper.isKun(player)) {
+				event.setCancelled(true);
+			}
+		} else if (SuperHotPluginHelper.clockHolder != null) {
+			if (!SuperHotPluginHelper.isClockHolder(player)) {
+				event.setCancelled(true);
+			}
+		}
 		if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
 			if (itemstack.getType().equals(Material.CLOCK)) {
 				if (SuperHotPluginHelper.clockHolder == null) {
@@ -65,29 +69,15 @@ public class SuperHotPluginEventListener implements Listener {
 					SuperHotPluginHelper.clockHolder = null;
 					player.sendMessage("時間が動き出した！");
 				}
-			} else if (itemstack.getType().equals(Material.TRIPWIRE_HOOK)) {
-				Fireball bullet = player.launchProjectile(Fireball.class);
-				bullet.setDirection(player.getLocation().getDirection());
-			} else if (itemstack.getType().equals(Material.IRON_HOE)) {
-				if (SuperHotPluginHelper.isKun(player)) {
-					List<Block> sightBlocks = player.getLineOfSight(null, 32);
-					sightBlocks.stream().
-						forEach(b -> {
-							Player target = b.getLocation().getNearbyEntitiesByType(Player.class, 0.5).stream()
-								.findFirst().orElse(null);
-							if (target != null) {
-								Location kunLoc = player.getLocation();
-								Inventory kunInv = player.getInventory();
-								Location targetLoc = target.getLocation();
-								Inventory targetInv = target.getInventory();
-								player.teleport(targetLoc);
-								player.getInventory().setContents(targetInv.getContents());
-								player.updateInventory();
-								target.teleport(kunLoc);
-								target.getInventory().setContents(kunInv.getContents());
-								target.updateInventory();
-							}
-						});
+			} else if (itemstack.getType().equals(Material.TRIPWIRE_HOOK) && !player.isSneaking()) {
+				Snowball bullet = player.launchProjectile(Snowball.class);
+				SuperHotPluginHelper.freeze(bullet);
+				//bullet.setVelocity(player.getFacing().getDirection());
+			} else if (SuperHotPluginHelper.isKun(player)) {
+				if (player.isSneaking() && (itemstack.getType().equals(Material.TRIPWIRE_HOOK) || itemstack.getType().equals(Material.STONE_SWORD))) {
+					SuperHotPluginHelper.throwItem(player);
+				} else {
+					SuperHotPluginHelper.switchBody(player);
 				}
 			}
 		}
@@ -96,16 +86,23 @@ public class SuperHotPluginEventListener implements Listener {
 	@EventHandler
 	public void onAttackBullet(EntityDamageByEntityEvent event) {
 		Entity kun = event.getDamager();
-		Entity fireball = event.getEntity();
+		Entity snowball = event.getEntity();
 		kun.sendMessage(kun.getName());
 		kun.sendMessage(SuperHotPlugin.config.getString("timeFreezer"));
-		if (SuperHotPluginHelper.isKun(kun) && fireball instanceof Fireball) {
+		if (SuperHotPluginHelper.isKun(kun) && snowball instanceof Snowball) {
 			if (kun instanceof Player) {
 				if (((Player) kun).getInventory().getItemInMainHand().getType().equals(Material.STONE_SWORD)) {
-					SuperHotPluginHelper.destroyBullet((Fireball) fireball, (Player) kun);
+					SuperHotPluginHelper.destroyBullet((Snowball) snowball, (Player) kun);
 				}
 			}
 
+		}
+	}
+
+	@EventHandler
+	public void onPickUpItem(EntityPickupItemEvent event) {
+		if (!SuperHotPluginHelper.isKun(event.getEntity()) && event.getItem().getCustomName().equalsIgnoreCase("throw")) {
+			event.setCancelled(true);
 		}
 	}
 }

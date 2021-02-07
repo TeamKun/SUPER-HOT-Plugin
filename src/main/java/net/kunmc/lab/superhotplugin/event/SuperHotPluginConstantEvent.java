@@ -3,8 +3,8 @@ package net.kunmc.lab.superhotplugin.event;
 import net.kunmc.lab.superhotplugin.SuperHotPlugin;
 import net.kunmc.lab.superhotplugin.helper.SuperHotPluginHelper;
 import org.bukkit.World;
-import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowball;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class SuperHotPluginConstantEvent extends BukkitRunnable {
@@ -55,12 +55,9 @@ public class SuperHotPluginConstantEvent extends BukkitRunnable {
 				kunMovementState = KunMovementState.Disable;
 			world.getEntities().stream()
 				.forEach(e -> {
-					if (e instanceof Fireball) {
-						Fireball f0 = (Fireball) e;
-						if (kunMovementState == KunMovementState.Stopping || (SuperHotPluginHelper.clockHolder != null)) {
-							SuperHotPluginHelper.freezeFireBall(f0);
-						}
-						Fireball f1 = f0.getLocation().getNearbyEntitiesByType(Fireball.class, 1).stream()
+					if (e instanceof Snowball) {
+						Snowball f0 = (Snowball) e;
+						Snowball f1 = f0.getLocation().getNearbyEntitiesByType(Snowball.class, 1).stream()
 							.findFirst().orElse(null);
 						if (f1 != null && !f0.getUniqueId().toString().equalsIgnoreCase(f1.getUniqueId().toString())) {
 							SuperHotPluginHelper.destroyBullet(f0, kun);
