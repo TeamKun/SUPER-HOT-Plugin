@@ -4,6 +4,7 @@ import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import net.kunmc.lab.superhotplugin.SuperHotPlugin;
 import net.kunmc.lab.superhotplugin.helper.SuperHotPluginHelper;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
@@ -15,6 +16,10 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class SuperHotPluginEventListener implements Listener {
 	private final SuperHotPlugin plugin;
@@ -80,10 +85,19 @@ public class SuperHotPluginEventListener implements Listener {
 					SuperHotPluginHelper.switchBody(player);
 				}
 			}
+			// entitydamagebyentityイベントが雪玉には通用しないっぽいので
+		} else if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
+			if (itemstack.getType().equals(Material.STONE_SWORD)) {
+				List<Snowball> snowballNearBy = player.getLocation().getNearbyEntitiesByType(Snowball.class, 2).stream().collect(Collectors.toList());
+				snowballNearBy.stream().
+					forEach(s -> {
+						SuperHotPluginHelper.destroyBullet(s, player);
+					});
+			}
 		}
 	}
 
-	@EventHandler
+/*	@EventHandler
 	public void onAttackBullet(EntityDamageByEntityEvent event) {
 		Entity kun = event.getDamager();
 		Entity snowball = event.getEntity();
@@ -97,7 +111,7 @@ public class SuperHotPluginEventListener implements Listener {
 			}
 
 		}
-	}
+	}*/
 
 	@EventHandler
 	public void onPickUpItem(EntityPickupItemEvent event) {

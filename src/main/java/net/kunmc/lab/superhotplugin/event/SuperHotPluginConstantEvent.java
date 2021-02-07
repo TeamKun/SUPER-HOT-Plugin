@@ -3,6 +3,7 @@ package net.kunmc.lab.superhotplugin.event;
 import net.kunmc.lab.superhotplugin.SuperHotPlugin;
 import net.kunmc.lab.superhotplugin.helper.SuperHotPluginHelper;
 import org.bukkit.World;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -48,8 +49,6 @@ public class SuperHotPluginConstantEvent extends BukkitRunnable {
 					kunMovementState = KunMovementState.Stopping;
 					//kun.sendMessage("時間の流れが止まった！");
 				}
-
-
 			}
 			if (!SuperHotPlugin.config.getBoolean("superHotEnabled"))
 				kunMovementState = KunMovementState.Disable;
@@ -61,6 +60,13 @@ public class SuperHotPluginConstantEvent extends BukkitRunnable {
 							.findFirst().orElse(null);
 						if (f1 != null && !f0.getUniqueId().toString().equalsIgnoreCase(f1.getUniqueId().toString())) {
 							SuperHotPluginHelper.destroyBullet(f0, kun);
+							SuperHotPluginHelper.destroyBullet(f1, kun);
+						}
+					} else if (e instanceof Item) {
+						Item f0 = (Item) e;
+						Snowball f1 = f0.getLocation().getNearbyEntitiesByType(Snowball.class, 1).stream()
+							.findFirst().orElse(null);
+						if (f1 != null) {
 							SuperHotPluginHelper.destroyBullet(f1, kun);
 						}
 					}
