@@ -1,6 +1,7 @@
 package net.kunmc.lab.superhotplugin.helper;
 
 import net.kunmc.lab.superhotplugin.SuperHotPlugin;
+import net.kunmc.lab.superhotplugin.config.SuperHotConfig;
 import net.kunmc.lab.superhotplugin.event.SuperHotPluginConstantEvent;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SuperHotPluginHelper {
+	private static SuperHotPlugin plugin = SuperHotPlugin.getPlugin();
 	private static double lastKunXPos = 0;
 	private static double lastKunZPos = 0;
 	private static Map<UUID, Vector> projectileVelocity = new HashMap<>();
@@ -28,6 +30,10 @@ public class SuperHotPluginHelper {
 	private static AttributeModifier ACCELERATION = new AttributeModifier(ACCELERATION_ID, "Accelerate entity", 0.5D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
 	private static AttributeModifier DECELERATION = new AttributeModifier(DECELERATION_ID, "Decelerate entity", -0.5D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
 	public static String clockHolder;
+
+	public SuperHotPluginHelper(SuperHotPlugin plugin) {
+		this.plugin = plugin;
+	}
 
 	public static void freeze(Entity entity) {
 		entity.setGravity(false);
@@ -164,14 +170,19 @@ public class SuperHotPluginHelper {
 		itemThrow.setCustomName("throw");
 		itemThrow.setCustomNameVisible(false);
 		player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-		if (SuperHotPluginConstantEvent.kunMovementState == SuperHotPluginConstantEvent.KunMovementState.Stopping || SuperHotPluginHelper.clockHolder != null) {
-			SuperHotPluginHelper.freeze(itemThrow);
-		}
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (SuperHotPluginConstantEvent.kunMovementState == SuperHotPluginConstantEvent.KunMovementState.Stopping || SuperHotPluginHelper.clockHolder != null) {
+					SuperHotPluginHelper.freeze(itemThrow);
+				}
+			}
+		}.runTaskLater(plugin, 4);
 	}
 
 	public static boolean isKun(Entity entity) {
-		if (!SuperHotPlugin.config.getBoolean("superHotEnabled")) return false;
-		return entity.getName().equalsIgnoreCase(SuperHotPlugin.config.getString("timeFreezer"));
+		if (!SuperHotConfig.superHotEnabled) return false;
+		return entity.getName().equalsIgnoreCase(SuperHotConfig.timeFreezer);
 	}
 
 	public static boolean isKunMoving(Player kun) {

@@ -1,7 +1,10 @@
 package net.kunmc.lab.superhotplugin.event;
 
 import net.kunmc.lab.superhotplugin.SuperHotPlugin;
+import net.kunmc.lab.superhotplugin.config.SuperHotConfig;
 import net.kunmc.lab.superhotplugin.helper.SuperHotPluginHelper;
+import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -18,10 +21,14 @@ public class SuperHotPluginConstantEvent extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		Player kun = plugin.getServer().getPlayer("Shojo_Virgim");
+		Player kun = plugin.getServer().getPlayer(SuperHotConfig.timeFreezer);
+		if (kun == null) {
+			kunMovementState = KunMovementState.Disable;
+			return;
+		}
 		if (kun != null) {
 			World world = kun.getWorld();
-			if (SuperHotPluginHelper.clockHolder == null && SuperHotPlugin.config.getBoolean("superHotEnabled")) {
+			if (SuperHotPluginHelper.clockHolder == null && SuperHotConfig.superHotEnabled) {
 				if (SuperHotPluginHelper.isKunMoving(kun) && world != null) {
 					if (kun.isSprinting() && kunMovementState != KunMovementState.Running) {
 						world.getEntities().stream()
@@ -50,24 +57,32 @@ public class SuperHotPluginConstantEvent extends BukkitRunnable {
 					//kun.sendMessage("時間の流れが止まった！");
 				}
 			}
-			if (!SuperHotPlugin.config.getBoolean("superHotEnabled"))
+			if (!SuperHotConfig.superHotEnabled)
 				kunMovementState = KunMovementState.Disable;
 			world.getEntities().stream()
 				.forEach(e -> {
 					if (e instanceof Snowball) {
-						Snowball f0 = (Snowball) e;
-						Snowball f1 = f0.getLocation().getNearbyEntitiesByType(Snowball.class, 1).stream()
+						Snowball s0 = (Snowball) e;
+						Snowball s1 = s0.getLocation().getNearbyEntitiesByType(Snowball.class, 1).stream()
 							.findFirst().orElse(null);
-						if (f1 != null && !f0.getUniqueId().toString().equalsIgnoreCase(f1.getUniqueId().toString())) {
-							SuperHotPluginHelper.destroyBullet(f0, kun);
-							SuperHotPluginHelper.destroyBullet(f1, kun);
+						if (s1 != null && !s0.getUniqueId().toString().equalsIgnoreCase(s1.getUniqueId().toString())) {
+							SuperHotPluginHelper.destroyBullet(s0, kun);
+							SuperHotPluginHelper.destroyBullet(s1, kun);
 						}
 					} else if (e instanceof Item) {
-						Item f0 = (Item) e;
-						Snowball f1 = f0.getLocation().getNearbyEntitiesByType(Snowball.class, 1).stream()
+						Item i = (Item) e;
+						Snowball s = i.getLocation().getNearbyEntitiesByType(Snowball.class, 1).stream()
 							.findFirst().orElse(null);
-						if (f1 != null) {
-							SuperHotPluginHelper.destroyBullet(f1, kun);
+						if (s != null) {
+							SuperHotPluginHelper.destroyBullet(s, kun);
+						}
+						Player p = i.getLocation().getNearbyEntitiesByType(Player.class, 0.5).stream()
+							.findFirst().orElse(null);
+						if (p != null) {
+							if (!SuperHotPluginHelper.isKun(p)) {
+								p.setHealth(0);
+								p.spawnParticle(Particle.BLOCK_CRACK, p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ(), 20, Material.REDSTONE_BLOCK.createBlockData());
+							}
 						}
 					}
 				});

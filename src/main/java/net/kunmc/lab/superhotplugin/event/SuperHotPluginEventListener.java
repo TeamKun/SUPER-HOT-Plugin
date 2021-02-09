@@ -4,8 +4,10 @@ import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import net.kunmc.lab.superhotplugin.SuperHotPlugin;
 import net.kunmc.lab.superhotplugin.helper.SuperHotPluginHelper;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
@@ -13,9 +15,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +43,14 @@ public class SuperHotPluginEventListener implements Listener {
 
 	@EventHandler
 	public void onPlayerShoot(PlayerLaunchProjectileEvent event) {
-		if (SuperHotPluginConstantEvent.kunMovementState == SuperHotPluginConstantEvent.KunMovementState.Stopping || SuperHotPluginHelper.clockHolder != null) {
-			SuperHotPluginHelper.freeze(event.getProjectile());
-		}
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (SuperHotPluginConstantEvent.kunMovementState == SuperHotPluginConstantEvent.KunMovementState.Stopping || SuperHotPluginHelper.clockHolder != null) {
+					SuperHotPluginHelper.freeze(event.getProjectile());
+				}
+			}
+		}.runTaskLater(plugin, 4);
 	}
 
 	@EventHandler
@@ -94,6 +103,16 @@ public class SuperHotPluginEventListener implements Listener {
 						SuperHotPluginHelper.destroyBullet(s, player);
 					});
 			}
+		}
+	}
+
+	@EventHandler
+	public void onHitEntity(ProjectileHitEvent event) {
+		if (event.getEntity() instanceof Snowball && event.getHitEntity() instanceof Player) {
+			Player p = (Player) event.getHitEntity();
+			p.setHealth(0);
+			p.spawnParticle(Particle.BLOCK_CRACK, p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ(), 20, Material.REDSTONE_BLOCK.createBlockData());
+			event.getEntity().remove();
 		}
 	}
 

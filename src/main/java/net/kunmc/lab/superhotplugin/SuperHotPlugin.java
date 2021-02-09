@@ -1,20 +1,26 @@
 package net.kunmc.lab.superhotplugin;
 
+import net.kunmc.lab.superhotplugin.config.SuperHotConfig;
 import net.kunmc.lab.superhotplugin.event.SuperHotPluginConstantEvent;
 import net.kunmc.lab.superhotplugin.event.SuperHotPluginEventListener;
-import org.bukkit.configuration.file.FileConfiguration;
+import net.kunmc.lab.superhotplugin.helper.SuperHotPluginHelper;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SuperHotPlugin extends JavaPlugin {
-	public static FileConfiguration config;
+	public static SuperHotPlugin plugin;
+
+	public static SuperHotPlugin getPlugin() {
+		return plugin;
+	}
 
 	@Override
 	public void onEnable() {
 		// Plugin startup logic
 		this.getLogger().info("Enabled SUPER HOT Plugin!");
 		this.register();
-		this.setupConfig();
-		new SuperHotPluginConstantEvent(this).runTaskTimer(this, 0, 0);
+		plugin = this;
+		new SuperHotPluginConstantEvent(this).runTaskTimer(plugin, 0, 0);
+		SuperHotConfig.load(false);
 	}
 
 	@Override
@@ -25,10 +31,5 @@ public final class SuperHotPlugin extends JavaPlugin {
 
 	private void register() {
 		this.getServer().getPluginManager().registerEvents(new SuperHotPluginEventListener(this), this);
-	}
-
-	private void setupConfig() {
-		this.saveDefaultConfig();
-		config = getConfig();
 	}
 }
