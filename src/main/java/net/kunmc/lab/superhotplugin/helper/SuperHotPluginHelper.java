@@ -42,6 +42,7 @@ public class SuperHotPluginHelper {
 			living.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(ACCELERATION);
 			living.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(DECELERATION);
 			living.setAI(false);
+			living.setVelocity(new Vector(0,0,0));
 			if (living instanceof Player) {
 				Player player = (Player) living;
 				player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).removeModifier(ACCELERATION);

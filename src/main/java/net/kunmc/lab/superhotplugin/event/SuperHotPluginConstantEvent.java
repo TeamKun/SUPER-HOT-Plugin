@@ -10,6 +10,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 public class SuperHotPluginConstantEvent extends BukkitRunnable {
 	private final SuperHotPlugin plugin;
@@ -70,18 +71,22 @@ public class SuperHotPluginConstantEvent extends BukkitRunnable {
 							SuperHotPluginHelper.destroyBullet(s1, kun);
 						}
 					} else if (e instanceof Item) {
-						Item i = (Item) e;
-						Snowball s = i.getLocation().getNearbyEntitiesByType(Snowball.class, 1).stream()
-							.findFirst().orElse(null);
-						if (s != null) {
-							SuperHotPluginHelper.destroyBullet(s, kun);
-						}
-						Player p = i.getLocation().getNearbyEntitiesByType(Player.class, 0.5).stream()
-							.findFirst().orElse(null);
-						if (p != null) {
-							if (!SuperHotPluginHelper.isKun(p)) {
-								p.setHealth(0);
-								p.spawnParticle(Particle.BLOCK_CRACK, p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ(), 20, Material.REDSTONE_BLOCK.createBlockData());
+						if ((((Item) e).getType().equals(Material.TRIPWIRE_HOOK) || ((Item) e).getType().equals(Material.STONE_SWORD))
+								 && !e.getVelocity().equals(new Vector(0, 0, 0))) {
+
+							Item i = (Item) e;
+							Snowball s = i.getLocation().getNearbyEntitiesByType(Snowball.class, 1).stream()
+								.findFirst().orElse(null);
+							if (s != null) {
+								SuperHotPluginHelper.destroyBullet(s, kun);
+							}
+							Player p = i.getLocation().getNearbyEntitiesByType(Player.class, 0.5).stream()
+								.findFirst().orElse(null);
+							if (p != null) {
+								if (!SuperHotPluginHelper.isKun(p)) {
+									p.setHealth(0);
+									p.spawnParticle(Particle.BLOCK_CRACK, p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ(), 20, Material.REDSTONE_BLOCK.createBlockData());
+								}
 							}
 						}
 					}
