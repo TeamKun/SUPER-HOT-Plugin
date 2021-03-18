@@ -43,14 +43,14 @@ public class SuperHotPluginEventListener implements Listener {
 
 	@EventHandler
 	public void onPlayerShoot(PlayerLaunchProjectileEvent event) {
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (SuperHotPluginConstantEvent.kunMovementState == SuperHotPluginConstantEvent.KunMovementState.Stopping || SuperHotPluginHelper.clockHolder != null) {
+		if (SuperHotPluginConstantEvent.kunMovementState == SuperHotPluginConstantEvent.KunMovementState.Stopping || SuperHotPluginHelper.clockHolder != null) {
+			new BukkitRunnable() {
+				@Override
+				public void run() {
 					SuperHotPluginHelper.freeze(event.getProjectile());
 				}
-			}
-		}.runTaskLater(plugin, 4);
+			}.runTaskLater(plugin, 4);
+		}
 	}
 
 	@EventHandler
@@ -85,7 +85,7 @@ public class SuperHotPluginEventListener implements Listener {
 				}
 			} else if (itemstack.getType().equals(Material.TRIPWIRE_HOOK) && !player.isSneaking()) {
 				Snowball bullet = player.launchProjectile(Snowball.class);
-				SuperHotPluginHelper.freeze(bullet);
+				//SuperHotPluginHelper.freeze(bullet);
 				//bullet.setVelocity(player.getFacing().getDirection());
 			} else if (SuperHotPluginHelper.isKun(player)) {
 				if (player.isSneaking() && (itemstack.getType().equals(Material.TRIPWIRE_HOOK) || itemstack.getType().equals(Material.STONE_SWORD))) {
