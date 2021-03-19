@@ -167,7 +167,7 @@ public class SuperHotPluginHelper {
 	public static void throwItem(Player player) {
 		ItemStack item = player.getInventory().getItemInMainHand();
 		Item itemThrow = player.getWorld().dropItem(new Location(player.getWorld(), player.getLocation().getX(), player.getLocation().getY() + 1, player.getLocation().getZ()), item);
-		itemThrow.setVelocity(player.getEyeLocation().getDirection());
+		itemThrow.setVelocity(player.getEyeLocation().getDirection().multiply(1.3F));
 		itemThrow.setCustomName("throw");
 		itemThrow.setCustomNameVisible(false);
 		player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
