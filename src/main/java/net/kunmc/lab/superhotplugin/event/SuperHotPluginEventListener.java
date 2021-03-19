@@ -5,6 +5,7 @@ import net.kunmc.lab.superhotplugin.SuperHotPlugin;
 import net.kunmc.lab.superhotplugin.helper.SuperHotPluginHelper;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -85,6 +86,7 @@ public class SuperHotPluginEventListener implements Listener {
 				}
 			} else if (itemstack.getType().equals(Material.TRIPWIRE_HOOK) && !player.isSneaking()) {
 				Snowball bullet = player.launchProjectile(Snowball.class);
+				player.getWorld().playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.7F, 1);
 				//SuperHotPluginHelper.freeze(bullet);
 				//bullet.setVelocity(player.getFacing().getDirection());
 			} else if (SuperHotPluginHelper.isKun(player)) {
